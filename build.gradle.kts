@@ -30,3 +30,15 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+sourceSets {
+    main {
+        resources {
+            srcDirs("src/main/resources")
+        }
+    }
+}
+
+tasks.processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
