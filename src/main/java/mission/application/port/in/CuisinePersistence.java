@@ -5,5 +5,5 @@ import mission.application.domain.model.Cuisine;
 
 public interface CuisinePersistence {
     Cuisine findByName(String name);
-    List<Cuisine> filter(List<Cuisine> cuisines);
+    List<Cuisine> filter(List<String> ingredients);
 }

@@ -1,6 +1,7 @@
 package mission.application.service;
 
 import java.util.List;
+import mission.application.domain.model.Cuisine;
 import mission.application.port.in.CuisinePersistence;
 import mission.application.port.in.IngredientPersistence;
 import mission.application.port.in.Input;
@@ -25,5 +26,12 @@ public class CuisineService {
         Validator.duplicateCheck(ingredients);
         ingredients.forEach(ingredientPersistence::findByName);
         return ingredients;
+    }
+
+    public void showAvailableCuisine(List<String> ingredients) {
+        List<String> availableCuisines = cuisinePersistence.filter(ingredients).stream()
+                .map(Cuisine::cuisineName)
+                .toList();
+        output.availableCuisine(availableCuisines);
     }
 }

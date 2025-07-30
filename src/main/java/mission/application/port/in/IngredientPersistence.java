@@ -1,5 +1,7 @@
 package mission.application.port.in;
 
+import mission.application.domain.model.dto.IngredientRow;
+
 public interface IngredientPersistence {
-    String findByName(String name);
+    IngredientRow findByName(String name);
 }
