@@ -11,5 +11,6 @@ public class Application {
         CuisineService cuisineService = config.getCuisineService();
         List<String> response = cuisineService.getInput();
         cuisineService.showAvailableCuisine(response);
+        cuisineService.showRecommendCuisine(response);
     }
 }

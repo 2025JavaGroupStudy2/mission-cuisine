@@ -1,7 +1,9 @@
 package mission.adapter.in;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import mission.application.domain.exception.CuisineNotFoundException;
 import mission.application.domain.exception.IngredientNotFoundException;
 import mission.application.domain.model.Cuisine;
@@ -55,6 +57,32 @@ public class CsvDatabase implements CuisinePersistence, IngredientPersistence {
                         .toList()
                         .containsAll(ingredients)
                 ).toList();
+    }
+
+    //개수를 가지고 비중이 50퍼 안되는건 거르기
+    //전체 그람수랑 있는재료 그람수 비중 구하기
+    //비중으로 노출된 가중치 정렬
+    public List<Cuisine> sortPerRate(List<String> inputIngredients){
+        return cuisines.stream()
+                .filter(cuisine -> cuisine.ingredients().stream()
+                        .map(IngredientDto::name)
+                        .anyMatch(inputIngredients::contains)
+                ).sorted(Comparator.comparingDouble(
+                        cuisine->getWeight(inputIngredients, cuisine.ingredients())
+                ))
+                .collect(Collectors.toList())
+                .reversed();
+    }
+
+    private double getWeight(List<String> inputIngredients, List<IngredientDto> ingredients){
+        int allAmount = ingredients.stream()
+                .mapToInt(IngredientDto::amount)
+                .sum();
+
+        return ingredients.stream()
+                .filter(inputIngredients::contains)
+                .mapToDouble(item-> (double) item.amount() / allAmount)
+                .sum();
     }
 
 }

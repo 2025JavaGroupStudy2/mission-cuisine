@@ -34,4 +34,11 @@ public class CuisineService {
                 .toList();
         output.availableCuisine(availableCuisines);
     }
+
+    public void showRecommendCuisine(List<String> ingredients) {
+        List<String> recommendCuisines = cuisinePersistence.sortPerRate(ingredients).stream()
+                .map(Cuisine::cuisineName)
+                .toList();
+        output.recommendCuisine(recommendCuisines);
+    }
 }

@@ -4,4 +4,5 @@ import java.util.List;
 
 public interface Output {
     void availableCuisine(List<String> availableCuisines);
+    void recommendCuisine(List<String> recommendCuisines);
 }
