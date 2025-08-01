@@ -24,7 +24,7 @@ public class CuisineService {
     public List<String> getInput(){
         List<String> ingredients = input.getIngredients();
         Validator.duplicateCheck(ingredients);
-        ingredients.forEach(ingredientPersistence::findByName);
+        ingredients.forEach(ingredientPersistence::findIngredientByName);
         return ingredients;
     }
 

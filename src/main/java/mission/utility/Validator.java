@@ -12,8 +12,4 @@ public class Validator {
             throw new DuplicateItemException();
         }
     }
-
-    public static void existenceCheck(List<?> items){
-
-    }
 }

@@ -26,14 +26,17 @@ public class CsvReader {
 
     private CsvReader(){
         ingredientRows = readFile(IngredientFileName).stream()
+                .skip(1)
                 .map(row -> row.split(","))
-                .map(row -> new IngredientRow(Integer.parseInt(row[0]), row[1], Unit.valueOf(row[2])))
+                .map(row -> new IngredientRow(Integer.parseInt(row[0]), row[1], Unit.parse(row[2])))
                 .toList();
         recipeRows = readFile(RecipeFileName).stream()
+                .skip(1)
                 .map(row -> row.split(","))
                 .map(row -> new RecipeRow(Integer.parseInt(row[0]), Integer.parseInt(row[1]), Integer.parseInt(row[2])))
                 .toList();
         cuisineRows = readFile(CuisineFileName).stream()
+                .skip(1)
                 .map(row -> row.split(","))
                 .map(row -> new CuisineRow(Integer.parseInt(row[0]), row[1], row[2]))
                 .toList();
@@ -47,7 +50,11 @@ public class CsvReader {
     }
 
     public List<CuisineRow> getCuisineRows(){
-        return cuisineRows;
+        return List.copyOf(cuisineRows);
+    }
+
+    public List<IngredientRow> getIngredientRows() {
+        return List.copyOf(ingredientRows);
     }
 
     public IngredientRow findByIngredientName(String name) {
