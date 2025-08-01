@@ -68,10 +68,10 @@ public class CsvDatabase implements CuisinePersistence, IngredientPersistence {
                         .map(IngredientDto::name)
                         .anyMatch(inputIngredients::contains)
                 ).sorted(Comparator.comparingDouble(
-                        cuisine->getWeight(inputIngredients, cuisine.ingredients())
-                ))
-                .collect(Collectors.toList())
-                .reversed();
+                        (Cuisine cuisine)->getWeight(inputIngredients, cuisine.ingredients())
+                ).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
     }
 
     private double getWeight(List<String> inputIngredients, List<IngredientDto> ingredients){
@@ -80,7 +80,7 @@ public class CsvDatabase implements CuisinePersistence, IngredientPersistence {
                 .sum();
 
         return ingredients.stream()
-                .filter(inputIngredients::contains)
+                .filter(ingredient -> inputIngredients.contains(ingredient.name()))
                 .mapToDouble(item-> (double) item.amount() / allAmount)
                 .sum();
     }
