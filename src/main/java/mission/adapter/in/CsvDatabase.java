@@ -1,9 +1,11 @@
 package mission.adapter.in;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import mission.application.domain.exception.CuisineNotFoundException;
 import mission.application.domain.exception.IngredientNotFoundException;
 import mission.application.domain.model.Cuisine;
@@ -57,6 +59,66 @@ public class CsvDatabase implements CuisinePersistence, IngredientPersistence {
                         .toList()
                         .containsAll(ingredients)
                 ).toList();
+    }
+
+    @Override
+    public String search(String input){
+        char HANGUL_BASE = 0xAC00;
+        int JUNGSEONG_COUNT = 21;
+        int JONGSEONG_COUNT = 28;
+
+        int highestMatchingCount = 0;
+        List<String> candidates = new ArrayList<>();
+        List<Integer> wrongAreas = new ArrayList<>();
+        input = input.replace(" ", "");
+        for(IngredientRow ingredient : ingredients){
+            String ingredientName = ingredient.name();
+            int wrongCount = 0;
+            int matchingCount = 0;
+
+            for(int i=0; i<input.length()-1; i++){
+                char checkAlphabet = input.charAt(i);
+                if(i<ingredientName.length()){
+                    char correctAlphabet = ingredientName.charAt(i);
+                    if(correctAlphabet==checkAlphabet){
+                        matchingCount+=2;
+                    }else{
+                        int checkCode = checkAlphabet - HANGUL_BASE;
+                        int checkChoseong = checkCode / (JUNGSEONG_COUNT * JONGSEONG_COUNT);
+                        int correctCode = correctAlphabet - HANGUL_BASE;
+                        int correctChoseong = correctCode / (JUNGSEONG_COUNT * JONGSEONG_COUNT);
+                        wrongCount+=2;
+                        if(checkChoseong==correctChoseong){
+                            matchingCount++;
+                            wrongCount--;
+                        }
+                    }
+                }
+            }
+
+            int isCorrectNameMoreLong = ingredientName.length() - input.length();
+            wrongCount += (Math.max(isCorrectNameMoreLong, 0));
+
+            if(matchingCount>=ingredientName.length()&&matchingCount>=highestMatchingCount){
+                if(matchingCount>highestMatchingCount){
+                    highestMatchingCount = matchingCount;
+                    candidates.clear();
+                    wrongAreas.clear();
+                }
+                wrongAreas.add(wrongCount);
+                candidates.add(ingredientName);
+            }
+        }
+        if(candidates.isEmpty()) {
+            return input;
+        }else{
+            int minIndex = IntStream.range(0, wrongAreas.size())
+                    .boxed()
+                    .min(Comparator.comparingInt(wrongAreas::get))
+                    .orElse(-1);
+            System.out.println(candidates.get(minIndex));
+            return candidates.get(minIndex);
+        }
     }
 
     //개수를 가지고 비중이 50퍼 안되는건 거르기

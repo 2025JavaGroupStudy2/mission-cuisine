@@ -24,8 +24,15 @@ public class CuisineService {
     public List<String> getInput(){
         List<String> ingredients = input.getIngredients();
         Validator.duplicateCheck(ingredients);
+        ingredients = getCorrectedIngredients(ingredients);
         ingredients.forEach(ingredientPersistence::findIngredientByName);
         return ingredients;
+    }
+
+    public List<String> getCorrectedIngredients(List<String> ingredients){
+        List<String> correctedIngredients = ingredients.stream().map(ingredientPersistence::search).toList();
+        output.correctIngredients(ingredients, correctedIngredients);
+        return correctedIngredients;
     }
 
     public void showAvailableCuisine(List<String> ingredients) {

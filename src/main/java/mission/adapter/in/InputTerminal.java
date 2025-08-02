@@ -8,7 +8,7 @@ import mission.utility.Validator;
 
 public class InputTerminal implements Input {
     public List<String> getIngredients() {
-        System.out.println("재료를 입력해주세요. ");
+        System.out.println("재료를 입력해주세요.");
         List<String> inputs = Stream.of(Console.readLine().split(","))
                 .map(String::trim)
                 .toList();
