@@ -75,8 +75,13 @@ public class CsvDatabase implements CuisinePersistence, IngredientPersistence {
 
         for (IngredientRow ingredient : ingredients) {
             String name = ingredient.name();
+            String cleanedName = name.replace(" ", "");
             int matchingScore = 0;
             int wrongScore = 0;
+
+            if (input.equals(cleanedName)) {
+                return name; // 공백 제거 후 완전일치 -> DB 단어로 반환
+            }
 
             for (int i = 0; i < input.length() - 1 && i < name.length(); i++) {
                 char inputChar = input.charAt(i);
