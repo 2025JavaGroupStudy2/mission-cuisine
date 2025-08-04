@@ -62,64 +62,69 @@ public class CsvDatabase implements CuisinePersistence, IngredientPersistence {
     }
 
     @Override
-    public String search(String input){
-        char HANGUL_BASE = 0xAC00;
-        int JUNGSEONG_COUNT = 21;
-        int JONGSEONG_COUNT = 28;
+    public String search(String input) {
+        final char HANGUL_BASE = 0xAC00;
+        final int JUNGSEONG_COUNT = 21;
+        final int JONGSEONG_COUNT = 28;
 
-        int highestMatchingCount = 0;
-        List<String> candidates = new ArrayList<>();
-        List<Integer> wrongAreas = new ArrayList<>();
         input = input.replace(" ", "");
-        for(IngredientRow ingredient : ingredients){
-            String ingredientName = ingredient.name();
-            int wrongCount = 0;
-            int matchingCount = 0;
 
-            for(int i=0; i<input.length()-1; i++){
-                char checkAlphabet = input.charAt(i);
-                if(i<ingredientName.length()){
-                    char correctAlphabet = ingredientName.charAt(i);
-                    if(correctAlphabet==checkAlphabet){
-                        matchingCount+=2;
-                    }else{
-                        int checkCode = checkAlphabet - HANGUL_BASE;
-                        int checkChoseong = checkCode / (JUNGSEONG_COUNT * JONGSEONG_COUNT);
-                        int correctCode = correctAlphabet - HANGUL_BASE;
-                        int correctChoseong = correctCode / (JUNGSEONG_COUNT * JONGSEONG_COUNT);
-                        wrongCount+=2;
-                        if(checkChoseong==correctChoseong){
-                            matchingCount++;
-                            wrongCount--;
-                        }
-                    }
+        int highestMatchingScore = 0;
+        List<String> candidates = new ArrayList<>();
+        List<Integer> wrongScores = new ArrayList<>();
+
+        for (IngredientRow ingredient : ingredients) {
+            String name = ingredient.name();
+            int matchingScore = 0;
+            int wrongScore = 0;
+
+            for (int i = 0; i < input.length() - 1 && i < name.length(); i++) {
+                char inputChar = input.charAt(i);
+                char nameChar = name.charAt(i);
+
+                if (inputChar == nameChar) {
+                    matchingScore += 2;
+                } else {
+                    matchingScore += compareChoseong(inputChar, nameChar, HANGUL_BASE, JUNGSEONG_COUNT, JONGSEONG_COUNT);
+                    wrongScore += 2;
                 }
             }
 
-            int isCorrectNameMoreLong = ingredientName.length() - input.length();
-            wrongCount += (Math.max(isCorrectNameMoreLong, 0));
+            wrongScore += Math.max(name.length() - input.length(), 0);
 
-            if(matchingCount>=ingredientName.length()&&matchingCount>=highestMatchingCount){
-                if(matchingCount>highestMatchingCount){
-                    highestMatchingCount = matchingCount;
+            if (matchingScore >= name.length() && matchingScore >= highestMatchingScore) {
+                if (matchingScore > highestMatchingScore) {
+                    highestMatchingScore = matchingScore;
                     candidates.clear();
-                    wrongAreas.clear();
+                    wrongScores.clear();
                 }
-                wrongAreas.add(wrongCount);
-                candidates.add(ingredientName);
+                candidates.add(name);
+                wrongScores.add(wrongScore);
             }
         }
-        if(candidates.isEmpty()) {
+
+        if (candidates.isEmpty()) {
             return input;
-        }else{
-            int minIndex = IntStream.range(0, wrongAreas.size())
-                    .boxed()
-                    .min(Comparator.comparingInt(wrongAreas::get))
-                    .orElse(-1);
-            System.out.println(candidates.get(minIndex));
-            return candidates.get(minIndex);
         }
+
+        int bestIndex = IntStream.range(0, wrongScores.size())
+                .boxed()
+                .min(Comparator.comparingInt(wrongScores::get))
+                .orElse(0);
+
+        return candidates.get(bestIndex);
     }
+
+    private int compareChoseong(char inputChar, char targetChar, char base, int jung, int jong) {
+        int inputCode = inputChar - base;
+        int targetCode = targetChar - base;
+
+        int inputChoseong = inputCode / (jung * jong);
+        int targetChoseong = targetCode / (jung * jong);
+
+        return (inputChoseong == targetChoseong) ? 1 : 0;
+    }
+
 
     //개수를 가지고 비중이 50퍼 안되는건 거르기
     //전체 그람수랑 있는재료 그람수 비중 구하기
