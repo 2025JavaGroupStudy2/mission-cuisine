@@ -8,11 +8,14 @@ public class OutputTerminal implements Output {
     @Override
     public void correctIngredients(List<String> ingredients, List<String> correctedIngredients){
         for(int i=0; i<ingredients.size(); i++){
-            String text = String.format("(%s -> %s)", ingredients.get(i), correctedIngredients.get(i));
+            String givenInput = ingredients.get(i);
+            String maybeCorrectedInput = correctedIngredients.get(i);
+            if(givenInput.equals(maybeCorrectedInput)){
+                continue;
+            }
+            String text = String.format("(%s -> %s)", givenInput, maybeCorrectedInput);
             System.out.println(text);
         }
-
-
     }
 
     @Override
